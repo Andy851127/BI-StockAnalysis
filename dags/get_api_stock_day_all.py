@@ -10,7 +10,7 @@ import pymysql
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2024, 7, 7),
+    'start_date': datetime(2024, 7, 8),
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
@@ -19,7 +19,7 @@ default_args = {
 
 # 定义 DAG
 dag = DAG(
-    'api_t187ap03_L',
+    'api_stock_day_all',
     default_args=default_args,
     description='An example DAG to fetch data from an API',
     schedule_interval=timedelta(days=1),  # 每天执行一次
@@ -28,7 +28,7 @@ dag = DAG(
 # 定义 Python 函数来执行 API 请求任务
 def get_api_datas():
     # API URL
-    url = "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
+    url = "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"
     # 检查请求是否成功
     response = requests.get(url)
     if response.status_code == 200:
@@ -48,15 +48,15 @@ def get_api_datas():
 def df_to_csv(**kwargs):
     df_json = kwargs['task_instance'].xcom_pull(task_ids='fetch_api_data')
     df = pd.read_json(df_json)
-    df.to_csv("/opt/airflow/dags/csv/t187ap03_L.csv", index=False, encoding='utf-8')
-    print("DataFrame 已保存为 t187ap03_L.csv")
+    df.to_csv("/opt/airflow/dags/csv/stock_day_all.csv", index=False, encoding='utf-8')
+    print("DataFrame 已保存为 stock_day_all.csv")
     
 host = 'mysql'  # MySQL 主机地址
 port = 3306  # MySQL 端口号
 database = 'bi_stock_analysis'  # 数据库名
 user = 'root'  # MySQL 用户名
 password = 'root'  # MySQL 密码
-table_name = 'company_info'  # 要写入的表名
+table_name = 'stock_day_all'  # 要写入的表名
     
 # 创建 MySQL 连接引擎
 def write_df_to_mysql(**kwargs):
